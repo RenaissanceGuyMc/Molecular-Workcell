@@ -1,1 +1,792 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<title>Technical Architecture — Molecular Workcell Engineering</title>
+<meta content="Technical dossier on molecular workcells: candidate hybrid bionanomachine architectures, nanoscale physical constraints, precision-fabrication pathways, and eleven falsifiable engineering problems." name="description"/>
+<meta content="Tristan Mentec" name="author"/>
+<meta content="light dark" name="color-scheme"/>
+<meta content="#EFF2F2" media="(prefers-color-scheme: light)" name="theme-color"/>
+<meta content="#0C1113" media="(prefers-color-scheme: dark)" name="theme-color"/>
+<meta content="article" property="og:type"/>
+<meta content="Molecular Workcell Engineering" property="og:title"/>
+<meta content="Docking converts uncontrolled three-dimensional transport into a constrained problem. A research program on constrained, instrumented molecular workcells and the route into atomically precise manufacturing." property="og:description"/>
+<meta content="summary" name="twitter:card"/>
+<link href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230A5C69'/%3E%3Cpath d='M6 6h20v20H6z' fill='none' stroke='%23EFF2F2' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='16' r='3.6' fill='%23EFF2F2'/%3E%3C/svg%3E" rel="icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap" rel="stylesheet"/>
+<style>
+/* ---------- reset ---------- */
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  color-scheme:light;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+
+/* ---------- design tokens ----------
+   Layout concept: a reading spine with a sticky section rail, broken by
+   bordered technical plates that carry the figures, scales and acceptance tests. */
+:root{
+  --bg:#EFF2F2;
+  --surface:#FBFCFC;
+  --sunken:#E4E9E9;
+  --ink:#121719;
+  --muted:#5C686C;
+  --rule:#CFD7D8;
+  --accent:#0A5C69;
+  --accent-soft:#DCEDEF;
+  --signal:#8F5B0C;
+  --signal-soft:#F5EAD7;
+  --grid:rgba(10,92,105,.10);
+
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --text:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1113;
+    --surface:#121A1D;
+    --sunken:#090E10;
+    --ink:#E7EEEF;
+    --muted:#95A5A9;
+    --rule:#243034;
+    --accent:#5BC4D1;
+    --accent-soft:#0F2C32;
+    --signal:#E0A64A;
+    --signal-soft:#2A2214;
+    --grid:rgba(91,196,209,.11);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1113;
+  --surface:#121A1D;
+  --sunken:#090E10;
+  --ink:#E7EEEF;
+  --muted:#95A5A9;
+  --rule:#243034;
+  --accent:#5BC4D1;
+  --accent-soft:#0F2C32;
+  --signal:#E0A64A;
+  --signal-soft:#2A2214;
+  --grid:rgba(91,196,209,.11);
+  color-scheme:dark;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--text);
+  font-size:1.0625rem;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.shell{
+  max-width:1200px;
+  margin-inline:auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:clamp(1.75rem,4vw,3.25rem) 4rem;
+}
+p{margin:0 0 1.05em}
+a{color:var(--accent)}
+strong{font-weight:600}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+
+/* ---------- hero ---------- */
+.hero{
+  border:1px solid var(--rule);
+  background:
+    linear-gradient(var(--grid) 1px,transparent 1px) 0 0/30px 30px,
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/30px 30px,
+    var(--surface);
+  padding:clamp(1.5rem,4vw,3.25rem);
+  display:grid;
+  gap:1.5rem;
+}
+.hero-top{display:flex;gap:1rem;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:.7rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin:0;
+}
+.theme-toggle{
+  font-family:var(--mono);
+  font-size:.66rem;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  color:var(--muted);
+  background:var(--bg);
+  border:1px solid var(--rule);
+  padding:.3rem .55rem;
+  cursor:pointer;
+  line-height:1.4;
+}
+.theme-toggle:hover{color:var(--ink);border-color:var(--accent)}
+h1{
+  font-size:clamp(2.3rem,7.4vw,4.4rem);
+  font-weight:700;
+  letter-spacing:-.035em;
+  line-height:.98;
+}
+.lede{
+  font-size:clamp(1.08rem,2.1vw,1.3rem);
+  line-height:1.55;
+  max-width:60ch;
+  margin:0;
+}
+.lede + .lede{margin-top:-.4rem}
+.byline{
+  font-family:var(--mono);
+  font-size:.74rem;
+  color:var(--muted);
+  letter-spacing:.03em;
+  border-top:1px solid var(--rule);
+  padding-top:1rem;
+  margin:0;
+}
+
+/* ---------- plates ---------- */
+.plate{
+  border:1px solid var(--rule);
+  background:var(--surface);
+  margin:2rem 0;
+}
+.plate-head{
+  font-family:var(--mono);
+  font-size:.68rem;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--muted);
+  border-bottom:1px solid var(--rule);
+  padding:.6rem 1rem;
+  display:flex;
+  gap:.9rem;
+  flex-wrap:wrap;
+  justify-content:space-between;
+}
+.plate-head b{color:var(--accent);font-weight:500}
+.plate-body{padding:clamp(1rem,2.6vw,1.6rem)}
+.plate-body > :last-child{margin-bottom:0}
+.fom{
+  font-family:var(--mono);
+  font-size:clamp(.92rem,2.1vw,1.08rem);
+  line-height:1.5;
+  color:var(--ink);
+  margin:0;
+}
+.fom em{color:var(--accent);font-style:normal}
+.note{margin:.9rem 0 0;font-size:.94rem;color:var(--muted)}
+
+.callout{
+  border-left:3px solid var(--accent);
+  background:var(--accent-soft);
+  padding:1rem 1.15rem;
+  margin:1.6rem 0;
+  font-size:1.02rem;
+}
+.callout > :last-child{margin-bottom:0}
+.callout .tag{
+  display:block;
+  font-family:var(--mono);
+  font-size:.66rem;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:.4rem;
+}
+.callout.law{border-left-color:var(--signal);background:var(--signal-soft)}
+.callout.law .tag{color:var(--signal)}
+
+/* ---------- layout ---------- */
+.layout{
+  display:grid;
+  grid-template-columns:190px minmax(0,1fr);
+  gap:clamp(2rem,5vw,4.5rem);
+  margin-top:clamp(2.5rem,6vw,4.5rem);
+}
+.rail ol{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:.1rem;
+  position:sticky;
+  top:calc(env(safe-area-inset-top,0px) + 1.75rem);
+}
+.rail a{
+  display:flex;
+  gap:.6rem;
+  font-family:var(--mono);
+  font-size:.74rem;
+  letter-spacing:.02em;
+  text-decoration:none;
+  color:var(--muted);
+  padding:.4rem .5rem .4rem 0;
+  border-left:2px solid transparent;
+  padding-left:.7rem;
+  transition:color .15s ease,border-color .15s ease;
+}
+.rail a:hover{color:var(--ink)}
+.rail a.is-current{color:var(--ink);border-left-color:var(--accent)}
+.rail a span{color:var(--accent);font-variant-numeric:tabular-nums}
+@media (max-width:880px){
+  .layout{grid-template-columns:minmax(0,1fr);gap:2rem}
+  .rail ol{position:static;flex-direction:row;flex-wrap:wrap;gap:.35rem;border-top:1px solid var(--rule);padding-top:1rem}
+  .rail a{border:1px solid var(--rule);border-left-width:1px;padding:.35rem .6rem}
+  .rail a.is-current{border-color:var(--accent)}
+}
+
+section{scroll-margin-top:1.5rem}
+section + section{margin-top:clamp(3rem,7vw,5rem)}
+.sec-head{
+  display:flex;
+  align-items:baseline;
+  gap:.9rem;
+  border-top:2px solid var(--ink);
+  padding-top:.9rem;
+  margin-bottom:1.5rem;
+}
+.sec-num{
+  font-family:var(--mono);
+  font-size:.78rem;
+  color:var(--accent);
+  font-variant-numeric:tabular-nums;
+}
+h2{font-size:clamp(1.45rem,3.3vw,2.05rem);font-weight:600;letter-spacing:-.02em;line-height:1.12}
+h3{
+  font-size:.82rem;
+  font-family:var(--mono);
+  font-weight:500;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:2rem 0 .75rem;
+}
+.prose{max-width:68ch}
+.prose ol,.prose ul{max-width:68ch;padding-left:1.25rem;margin:0 0 1.05em}
+.prose li{margin-bottom:.45em}
+
+/* ---------- sequence ---------- */
+.seq{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;list-style:none;padding:0}
+.seq li{
+  font-family:var(--mono);
+  font-size:.74rem;
+  border:1px solid var(--rule);
+  background:var(--bg);
+  padding:.4rem .6rem;
+  margin:0;
+}
+.seq li:nth-child(odd){border-color:var(--accent);color:var(--accent)}
+.seq .arrow{border:0;background:none;color:var(--muted);padding:0 .1rem}
+
+/* ---------- grids and tables ---------- */
+.planes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin:0}
+.planes div{background:var(--surface);padding:.95rem 1.05rem;min-width:0}
+.planes dt{font-family:var(--display);font-weight:600;font-size:.98rem;margin-bottom:.2rem}
+.planes dd{margin:0;font-size:.92rem;color:var(--muted);line-height:1.5}
+.scroll-x{overflow-x:auto;margin:1.5rem 0}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:.92rem}
+caption{
+  caption-side:bottom;
+  text-align:left;
+  font-family:var(--mono);
+  font-size:.68rem;
+  color:var(--muted);
+  padding-top:.7rem;
+  letter-spacing:.04em;
+}
+th,td{text-align:left;padding:.7rem .85rem;border-bottom:1px solid var(--rule);vertical-align:top}
+thead th{
+  font-family:var(--mono);
+  font-weight:500;
+  font-size:.68rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  border-bottom:1px solid var(--ink);
+}
+tbody th{font-family:var(--mono);font-weight:500;color:var(--accent);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* ---------- control horizon ruler ---------- */
+.ruler-wrap{overflow-x:auto}
+.ruler{position:relative;min-width:560px;height:104px;margin-top:.4rem}
+.band{position:absolute;top:26px;height:26px;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center}
+.band span{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 .4rem;white-space:nowrap}
+.band.b1{left:0;width:49.2%;background:var(--accent-soft);border-color:var(--accent)}
+.band.b1 span{color:var(--accent)}
+.band.b2{left:49.2%;width:10.1%;background:var(--signal-soft);border-color:var(--signal)}
+.band.b2 span{color:var(--signal);font-size:.58rem}
+.band.b3{left:59.3%;width:40.7%;background:var(--sunken)}
+.tick{position:absolute;top:52px;width:1px;height:12px;background:var(--rule)}
+.tick.major{background:var(--ink)}
+.tick b{
+  position:absolute;
+  top:16px;
+  left:50%;
+  transform:translateX(-50%);
+  font-family:var(--mono);
+  font-size:.68rem;
+  font-weight:400;
+  color:var(--muted);
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+.axis-label{position:absolute;top:0;font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- bottlenecks ---------- */
+.family{
+  font-family:var(--mono);
+  font-size:.7rem;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--ink);
+  border-bottom:1px solid var(--rule);
+  padding-bottom:.5rem;
+  margin:2.5rem 0 1.25rem;
+}
+.cards{display:grid;gap:1rem}
+.card{border:1px solid var(--rule);background:var(--surface);padding:1.1rem 1.2rem;display:grid;gap:.6rem}
+.card-top{display:flex;gap:.8rem;align-items:baseline;flex-wrap:wrap}
+.card-id{font-family:var(--mono);font-size:.74rem;color:var(--accent);font-variant-numeric:tabular-nums}
+.card h4{font-family:var(--display);font-size:1.05rem;font-weight:600;margin:0;letter-spacing:-.01em;flex:1;min-width:12ch}
+.card p{margin:0;font-size:.97rem;color:var(--muted)}
+.solved{
+  font-family:var(--mono);
+  font-size:.82rem;
+  line-height:1.55;
+  border-top:1px dashed var(--rule);
+  padding-top:.65rem;
+  color:var(--ink);
+  min-width:0;
+}
+.solved b{color:var(--accent);font-weight:500;letter-spacing:.06em;text-transform:uppercase;font-size:.66rem;display:block;margin-bottom:.25rem}
+
+/* maturity chips: certainty encoded as fill, outline, then dash */
+.chip{
+  font-family:var(--mono);
+  font-size:.62rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  padding:.22rem .5rem;
+  white-space:nowrap;
+  border:1px solid transparent;
+}
+.chip.demonstrated{background:var(--accent);color:var(--surface)}
+.chip.emerging{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.chip.projected{border-color:var(--signal);color:var(--signal)}
+.chip.speculative{border-style:dashed;border-color:var(--muted);color:var(--muted)}
+
+.ladder{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule);margin:0}
+.ladder > div{background:var(--surface);padding:.8rem 1rem;display:grid;grid-template-columns:150px minmax(0,1fr);gap:1rem;align-items:baseline}
+.ladder dt{font-family:var(--mono);font-size:.76rem;color:var(--accent)}
+.ladder dd{margin:0;font-size:.94rem;color:var(--muted)}
+@media (max-width:560px){.ladder > div{grid-template-columns:minmax(0,1fr);gap:.2rem}}
+
+footer{
+  margin-top:clamp(3.5rem,8vw,6rem);
+  border-top:2px solid var(--ink);
+  padding-top:1.5rem;
+  display:grid;
+  gap:1.5rem;
+}
+footer h3{margin-top:0}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:.4rem;font-size:.94rem;color:var(--muted)}
+.coda{
+  font-family:var(--display);
+  font-weight:600;
+  font-size:clamp(1rem,2.4vw,1.25rem);
+  letter-spacing:-.015em;
+  max-width:46ch;
+  color:var(--ink);
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *{transition:none!important;animation:none!important}
+}
+@media print{
+  .rail,.theme-toggle{display:none}
+  .layout{grid-template-columns:minmax(0,1fr)}
+  body{background:#fff;color:#000}
+}
+
+.return-bar{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.25rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.035em;color:var(--muted)}
+.return-bar a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent);padding-bottom:.2rem}
+.return-bar a:hover{text-decoration:underline}
+@media(max-width:620px){.return-bar span{display:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="return-bar"><a aria-label="Return to Molecular Workcell Engineering field proposal" href="../">← Return to the field proposal</a><span>Technical dossier · Independent research note</span></div>
+<header class="hero">
+<div class="hero-top">
+<p class="eyebrow">Nonconfidential technical architecture · November 2026</p>
+<button aria-label="Switch to dark theme" class="theme-toggle" id="theme-toggle" type="button">Dark</button>
+</div>
+<h1>Molecular Workcell Engineering: Technical Architecture</h1>
+<p class="lede">A recurring weakness in proposals for free-floating molecular robots is the assumption that an object can hold a prescribed orientation in a noisy liquid environment using feedback alone. Whether that is feasible depends on its actual actuation authority, rotational diffusion, interfaces, and task timescale.</p>
+<p class="lede">This program changes the unit of engineering. A candidate molecular workcell is a constrained or selectively organized environment where an operation is specified, carried out, and evaluated through an appropriately calibrated readout. Docking can turn a difficult free-space problem into a smaller set of relevant degrees of freedom. Other workcells may immobilize the tool entirely or exploit solution-phase selectivity.</p>
+<p class="byline">Tristan Roberge-Mentec · Independent, nonconfidential research architecture · November 2026</p>
+</header>
+<div class="plate" style="margin-top:1.25rem">
+<div class="plate-head"><b>FOM-1</b><span>Primary figure of merit</span></div>
+<div class="plate-body">
+<p class="fom"><em>Report verified yield, selectivity, throughput, measurement fidelity, and cost per successful operation together.</em></p>
+<p class="note">These measures form a task-dependent performance vector, not one universal scalar. A workcell must be judged against the simplest viable competing process, including the off-target products, resource demand, and time spent verifying outcomes.</p>
+</div>
+</div>
+<div class="layout">
+<nav aria-label="Sections" class="rail">
+<ol>
+<li><a class="is-current" href="#unit"><span>01</span> The unit</a></li>
+<li><a href="#architecture"><span>02</span> Architecture</a></li>
+<li><a href="#control"><span>03</span> Control and agency</a></li>
+<li><a href="#apm"><span>04</span> Atomic precision</a></li>
+<li><a href="#problems"><span>05</span> Open problems</a></li>
+<li><a href="#evidence"><span>06</span> Evidence</a></li>
+</ol>
+</nav>
+<main>
+<section id="unit">
+<div class="sec-head"><span class="sec-num">01</span><h2>The workcell as the unit of engineering</h2></div>
+<div class="prose">
+<p>A workcell is defined by constraint and instrumentation, not by size or substrate. It can be a flow cell with a fixture grid, a functionalized surface, a chamber with field coils and imaging, or a molecular target that behaves as a fixture because the machine can key to it reproducibly. What makes it a testable workcell is that the relevant inputs, outcomes, and failure populations can be measured with declared detection limits; continuous full-state observation is not assumed.</p>
+<p>The mission is narrow and repeatable: perform positionally constrained operations on a chosen target by finding and docking to a stable local fixture. In one candidate architecture, components diffuse between operations and become constrained for work. Other implementations can be immobilized throughout. The transport and capture losses must be counted against any savings in control complexity.</p>
+<h3>Operation sequence</h3>
+<ol class="seq">
+<li>Transport</li><li aria-hidden="true" class="arrow">→</li>
+<li>Key match</li><li aria-hidden="true" class="arrow">→</li>
+<li>Compliant reversible bind</li><li aria-hidden="true" class="arrow">→</li>
+<li>Constrain required degrees of freedom</li><li aria-hidden="true" class="arrow">→</li>
+<li>Engage tool</li><li aria-hidden="true" class="arrow">→</li>
+<li>Orthogonal readout</li><li aria-hidden="true" class="arrow">→</li>
+<li>Gated release</li>
+</ol>
+<div class="callout">
+<span class="tag">Attachment axiom</span>
+<p>A command such as "attach" is meaningful only when the system can distinguish correctly attached, misattached and unattached states. Until that distinction exists as a measurement, every downstream claim about operations is a claim about an unknown population.</p>
+</div>
+<h3>Governed incompleteness</h3>
+<p>The workcell is permitted to supply what the machine does not carry. External fields, fluidics, computation, imaging, energy and precursors are legitimate parts of the design when the dependency improves safety, observability, capital efficiency or tractability. Cellular autonomy is expensive in molecular complexity, and reproducing it is not a prerequisite for useful work. Incomplete machines are an architectural feature here, not a stage to be outgrown.</p>
+</div>
+</section>
+<section id="architecture">
+<div class="sec-head"><span class="sec-num">02</span><h2>The architecture that supplies the machines</h2></div>
+<div class="prose">
+<p>One candidate family of workcell components comes from hybrid programmable bionanomachines: a proposed substrate-selective approach to translating functional specifications into testable physical systems. A bionanomachine need not be alive, self-replicating, mobile or autonomous.</p>
+<div class="callout">
+<span class="tag">Canonical definition</span>
+<p>An engineered molecular or nanoscale system that converts encoded information into bounded physical function through sensing, recognition, state transitions, chemical work, structural transformation, material organization, or actuation.</p>
+</div>
+</div>
+<div class="plate">
+<div class="plate-head"><b>Fig. 01</b><span>Compilation stack</span></div>
+<div class="plate-body">
+<ol class="seq">
+<li>Functional specification</li><li aria-hidden="true" class="arrow">→</li>
+<li>Machine roles</li><li aria-hidden="true" class="arrow">→</li>
+<li>Substrate allocation</li><li aria-hidden="true" class="arrow">→</li>
+<li>Assembly</li><li aria-hidden="true" class="arrow">→</li>
+<li>Materialization</li><li aria-hidden="true" class="arrow">→</li>
+<li>Verification</li><li aria-hidden="true" class="arrow">→</li>
+<li>Operation</li>
+</ol>
+<p class="note">A future compiler, if one proves feasible, cannot be only a geometry engine. It must carry assembly kinetics, environmental constraints, failure modes, metrology burden and cost per useful object, because those are what decide whether a design survives contact with a process.</p>
+</div>
+</div>
+<div class="prose">
+<h3>Functional planes</h3>
+<p>Machines are specified by roles that must be implemented somewhere, not by mandatory physical layers. One substrate can carry several planes, and a plane can move between substrates during the machine lifecycle.</p>
+</div>
+<dl class="planes">
+<div><dt>Information</dt><dd>Identities, coordinates, rules, conditional behavior. DNA sequence, RNA state, protein binding logic, externally stored control state.</dd></div>
+<div><dt>Morphology</dt><dd>Geometry, topology, mechanical configuration, shape change. Origami and kirigami, protein cages and sheets, hybrid scaffolds.</dd></div>
+<div><dt>Function</dt><dd>Recognition, catalysis, optics, electronics, magnetism, transport, mechanics. Proteins, nanoparticles, pores, magnetic crystals.</dd></div>
+<div><dt>Interface</dt><dd>Interaction with fluids, cells, surfaces, neighbors and infrastructure. Coronas, coatings, ligands, antifouling layers.</dd></div>
+<div><dt>Materialization</dt><dd>Transfer of molecular information into persistent matter. Silicification, metal deposition, seeded crystal growth.</dd></div>
+<div><dt>Agency</dt><dd>Coupling of state to physical work. Conformational change, catalytic output, field-responsive rotation, collective action.</dd></div>
+<div><dt>Observability</dt><dd>Measurable state and bounded action. Fluorescent, plasmonic, magnetic and electrical readouts, external feedback, precursor dependence.</dd></div>
+</dl>
+<div class="prose">
+<h3>Substrate selection and the precision budget</h3>
+<p>In the proposed design framework, substrate allocation is a major engineering decision and must include cost and verification, not just geometry. A machine requiring a 20 nm feature gains nothing from 0.1 nm positional precision if that precision imposes a catastrophic throughput, capital, extraction or metrology penalty.</p>
+</div>
+<div class="plate">
+<div class="plate-head"><b>Eq. 01</b><span>Illustrative substrate utility</span></div>
+<div class="plate-body">
+<p class="fom">U<sub>s</sub> = w<sub>p</sub>P + w<sub>y</sub>Y + w<sub>t</sub>T + w<sub>f</sub>F + w<sub>e</sub>E + w<sub>r</sub>R + w<sub>m</sub>M − w<sub>c</sub>C − w<sub>i</sub>I − w<sub>v</sub>V</p>
+<p class="note">Precision, yield, throughput, functional richness, environmental compatibility, reconfigurability and manufacturability, less economic cost, integration burden and verification burden. The weights change by application. This is a conceptual multi-criteria score, not a calibrated predictive equation: every input must be normalized and the weights justified for a specific use case. Penalties that get hidden most often are purification, precursor scarcity, irreversible step count, metrology time per useful object, and bespoke integration tooling.</p>
+</div>
+</div>
+<div class="prose">
+<h3>Material identity is mutable</h3>
+<p>A machine may change substrate during construction and operation. A DNA scaffold may exist only during assembly. A protein lattice may organize inorganic growth and then become structurally irrelevant. A useful hypothesis is that some designs can preserve relevant encoded function even as their material composition changes; the fidelity of that transfer remains to be demonstrated case by case.</p>
+</div>
+<div class="scroll-x">
+<table>
+<caption>Table 01. Materialization outcomes and when each is chosen.</caption>
+<thead><tr><th scope="col">Outcome</th><th scope="col">What happens</th><th scope="col">Chosen when</th></tr></thead>
+<tbody>
+<tr><th scope="row">Persistent</th><td>The biomolecular structure remains part of the operating machine.</td><td>Dynamic sensing, molecular logic, conformational switching, biological recognition.</td></tr>
+<tr><th scope="row">Reinforced</th><td>The structure remains and receives an inorganic shell.</td><td>Stiffness and stability are needed while selected addressability is preserved.</td></tr>
+<tr><th scope="row">Sacrificial</th><td>The structure defines geometry and is then removed.</td><td>Long-lived inorganic devices, membranes, optical structures, harsh operation.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="prose">
+<h3>Reversible before irreversible</h3>
+<p>Components should explore configuration space before anything is locked. Weak hybridization followed by ligation, strand-displacement correction, tunable protein oligomerization, reversible metal coordination, dynamic covalent chemistry and colloidal annealing are all candidates. The doctrine has a hard limit: annealing only counts if it reduces functionally important defects after the full process cost, including added time and side reactions, has been charged against it.</p>
+</div>
+</section>
+<section id="control">
+<div class="sec-head"><span class="sec-num">03</span><h2>Control authority, scale, and the hierarchy of agency</h2></div>
+<div class="prose">
+<p>The so-called Control Horizon is a proposed systems-design framing, not a universal size threshold. Thermal motion, viscous drag, field-induced torque, binding energy, and task duration determine whether a given tool has adequate control authority. Better feedback cannot create missing physical force or torque, although confinement and chemistry can change the problem being controlled. These claims must be tested for the actual chassis and medium.</p>
+</div>
+
+<div class="plate"><div class="plate-head"><b>Fig. 02</b><span>Measured control authority: not a universal size threshold</span></div>
+<div class="plate-body">
+<div class="scroll-x"><table><thead><tr><th scope="col">Quantity</th><th scope="col">What it tests</th><th scope="col">Required evidence</th></tr></thead>
+<tbody>
+<tr><th scope="row">Drive vs thermal energy</th><td>Whether an actuator or binding landscape can bias relevant configurations on the operation timescale.</td><td>Measured drive, field conditions, effective potential or torque, and thermal variability.</td></tr>
+<tr><th scope="row">Rotational diffusion × task time</th><td>How much orientation can wander before the operation completes without a constraint.</td><td>Hydrodynamic geometry, viscosity, diffusion estimate and tracked orientation distributions.</td></tr>
+<tr><th scope="row">Readout vs error cost</th><td>Whether the instrument can distinguish successful and failed operations at useful throughput.</td><td>False-positive and false-negative rates, sampling burden and cost per verified outcome.</td></tr>
+</tbody></table></div>
+<p class="note">No fixed 300 or 600 nm boundary is asserted. Geometry, temperature, anisotropy, surface confinement, medium, and external-field design change the operating regime. Compare candidate architectures on the same task.</p>
+</div></div>
+<div class="prose">
+<p>When orientational fluctuations dominate the operation timescale, chemical recognition, mechanical constraint, or localized energy barriers may be better control variables than free-space steering. External fields can still produce useful torque in appropriately designed nanosystems. The selection must follow measured torque, diffusion and error budgets, not a diameter label.</p>
+<h3>Agency is a ladder, not a switch</h3>
+</div>
+<dl class="ladder">
+<div><dt>State</dt><dd>Internal state changes under defined conditions: binding, strand displacement, conformational transition.</dd></div>
+<div><dt>Chemical</dt><dd>State controls chemistry or molecular flux: catalytic activation, release, cascade, pore gating.</dd></div>
+<div><dt>Morphological</dt><dd>Geometry or topology changes: kirigami opening, exposure or occlusion, adaptive pores.</dd></div>
+<div><dt>Material</dt><dd>State organizes persistent matter: mineralization, crystallization, deposition, crosslinking.</dd></div>
+<div><dt>Mechanical</dt><dd>Directed force or displacement: field-driven rotation, transport, micromotor actuation.</dd></div>
+<div><dt>Collective</dt><dd>Population interactions produce functions absent in single units: sorting, concentration, dynamic scaffolds.</dd></div>
+</dl>
+<div class="prose">
+<p style="margin-top:1.25rem">Many economically useful molecular systems may not need locomotion or autonomous mechanical agency. Whether chemical, material, or mechanical approaches win should be determined by measured functional performance, not by the apparent sophistication of the mechanism.</p>
+</div>
+</section>
+<section id="apm">
+<div class="sec-head"><span class="sec-num">04</span><h2>Crossing into atomically precise manufacturing</h2></div>
+<div class="prose">
+<p>Atomically selective fabrication may become one specialized option; there is no reason to require it for every function. Four fabrication regimes coexist, and the compiler selects among them by required function rather than by maturity.</p>
+</div>
+<div class="scroll-x">
+<table>
+<caption>Table 02. Fabrication regimes as selectable backends. Capital profiles and risks are architectural estimates.</caption>
+<thead><tr><th scope="col">Regime</th><th scope="col">What it supplies</th><th scope="col">Dominant economic risk</th></tr></thead>
+<tbody>
+<tr><th scope="row">I. Programmable biomolecular assembly</th><td>Information-dense assembly, recognition, catalysis, reconfiguration, biological compatibility.</td><td>Yield, reagent cost, sequence complexity, batch variability.</td></tr>
+<tr><th scope="row">II. Bio-templated inorganic</th><td>Sequence information translated into material organization: mineralization, metal and crystal growth.</td><td>Fidelity loss at the handoff, multi-step processing, purification.</td></tr>
+<tr><th scope="row">III. Hybrid precision</th><td>Molecular templates on lithographic surfaces, directed self-assembly, selective deposition, patterned electrodes.</td><td>Registration, cleanroom dependence, interface yield, area scaling.</td></tr>
+<tr><th scope="row">IV. Atomically precise</th><td>Specific atom positions and bond configurations where they dominate device performance.</td><td>Throughput, capital, metrology, tool-state stability, extraction, parallelization.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="prose">
+<div class="callout law">
+<span class="tag">Precision-value test</span>
+<p>Atomic precision enters the stack only when its incremental functionality justifies the throughput, capital, metrology, environmental control and extraction costs it imposes on the whole process.</p>
+</div>
+<h3>Finishing, not replacement</h3>
+<p>The strongest near-term mission for positional chemistry is finishing. Self-assembly, templating or lithography builds most of the object. Positional chemistry then adds or repairs the small subset of features whose exact configuration materially changes function: quantum defects, catalytic active sites whose atomic arrangement controls selectivity, molecular-scale electrodes and constrained junctions, deterministic defect placement, and reference structures for metrology calibration.</p>
+<h3>What is actually demonstrated</h3>
+<p>Scanning-probe manipulation and atomically selective surface chemistry have produced important demonstrations under specialized conditions; these do not establish general-purpose mechanosynthesis. The unresolved requirements include tool-state control, reaction selectivity, contamination, positional error, throughput, and yield. Proposed extensions into parallel, atomically selective manufacturing remain speculative until integrated and independently reproduced. Increasing hardness does not create atomic manufacturing.</p>
+<h3>What the workcell carries across</h3>
+<p>The two regimes look incompatible because one is warm and wet and the other is cold and clean. They share the part that actually decides whether either becomes manufacturing: fixtures and registration, docking and re-addressability, a metrology bus that reports state at the scale of the operation, verification gates before release, and provenance for every build. A scanning-probe experiment offers a useful analogy to a constrained, instrumented workcell. The architectural question is whether the same discipline survives when there are many of each.</p>
+<div class="callout">
+<span class="tag">Bridge thesis</span>
+<p>Atomically precise manufacturing is not reached by making soft machines harder. It is reached by making the workcell around them disciplined enough that a positional tool becomes one more backend the compiler can select.</p>
+</div>
+</div>
+</section>
+<section id="problems">
+<div class="sec-head"><span class="sec-num">05</span><h2>Open problems for the field</h2></div>
+<div class="prose">
+<p>Each problem below states what it blocks and what a result would have to show to count as solved. The maturity tag marks where the underlying capability stands today, not how important the problem is. Acceptance criteria are deliberately written so that a negative result also settles something.</p>
+</div>
+<p class="family">Family A · Control and docking</p>
+<div class="cards">
+<article class="card">
+<div class="card-top"><span class="card-id">B01</span><h4>Actuation authority below the horizon</h4><span class="chip emerging">Emerging</span></div>
+<p>Free-space orientational control becomes difficult when rotational diffusion outpaces the available stabilizing torque over the operation timescale. This is a system-specific regime: magnetic DNA nanorotors demonstrate that suitably engineered field-responsive structures can be driven and constrained. Claims should be evaluated against actual torque and diffusion measurements.</p>
+<p class="solved"><b>Counts as solved when</b>A measurement in the intended medium reports available torque, resulting orientational error and the crossover scale for a specific chassis, with the control bandwidth stated alongside it.</p>
+</article>
+<article class="card">
+<div class="card-top"><span class="card-id">B02</span><h4>Verified docking state</h4><span class="chip projected">Projected</span></div>
+<p>Reliable in situ discrimination between attached, misattached and unattached populations remains an unresolved requirement for many proposed workcell implementations. Without it, operation counts are averages over an unknown mixture, and off-target products cannot be attributed.</p>
+<p class="solved"><b>Counts as solved when</b>An orthogonal reporter gates tool engagement and release in situ, and misattachment is reported per operation rather than per batch.</p>
+</article>
+<article class="card">
+<div class="card-top"><span class="card-id">B03</span><h4>Repeat-operation endurance</h4><span class="chip projected">Projected</span></div>
+<p>An isolated successful event does not establish process reliability. The quantity that decides whether a workcell is an instrument or a process is how many verified operations one docked machine completes before it fails, and how it fails.</p>
+<p class="solved"><b>Counts as solved when</b>A docked machine completes a sustained run of verified operations with a measured failure mode distribution. A first target could be at least 100 independently verified operations per docking event, if the chemistry supports repeatable cycling; this is a proposed benchmark, not a reported achievement.</p>
+</article>
+</div>
+<p class="family">Family B · Materialization and verification</p>
+<div class="cards">
+<article class="card">
+<div class="card-top"><span class="card-id">B04</span><h4>Fidelity of the biomolecular to inorganic handoff</h4><span class="chip demonstrated">Demonstrated in part</span></div>
+<p>Materialization is where encoded spatial information is most easily destroyed. Selected biomolecular templating and mineralization experiments show that encoded structure can guide inorganic material formation. Preservation of a target function must be demonstrated for each proposed transfer process.</p>
+<p class="solved"><b>Counts as solved when</b>A materialized structure shows a reproducible performance difference against a non-programmed control, with the spatial information loss quantified rather than inferred.</p>
+</article>
+<article class="card">
+<div class="card-top"><span class="card-id">B05</span><h4>Annealing that pays for itself</h4><span class="chip emerging">Emerging</span></div>
+<p>Reversible assembly can improve defect correction, but it does not automatically improve total-process yield. It also adds process time, steps and side reactions, and it only helps if the system can escape common kinetic traps on useful timescales.</p>
+<p class="solved"><b>Counts as solved when</b>A reversible protocol reduces functionally important defects, not merely geometrically visible ones, after the full process cost is charged to it.</p>
+</article>
+<article class="card">
+<div class="card-top"><span class="card-id">B06</span><h4>Metrology that scales with fabrication</h4><span class="chip projected">Projected</span></div>
+<p>Verification cost per useful object can grow faster than fabrication cost, which kills otherwise sound processes. Per-object microscopy is not a manufacturing method.</p>
+<p class="solved"><b>Counts as solved when</b>Intrinsic optical, plasmonic, magnetic or electrical readouts substitute for per-object imaging on the states that matter, validated against microscopy on a sampled population with stated detection limits.</p>
+</article>
+<article class="card">
+<div class="card-top"><span class="card-id">B07</span><h4>Environmental transfer</h4><span class="chip emerging">Emerging</span></div>
+<p>Behavior established in clean buffer routinely collapses in serum, industrial feedstock or tissue. Environmental fidelity is usually deferred to late-stage work, which is where programs die.</p>
+<p class="solved"><b>Counts as solved when</b>A behavior measured in buffer is reproduced in the intended medium, or the degradation pathway that prevents it is identified and reported.</p>
+</article>
+</div>
+<p class="family">Family C · Interface and precision fabrication</p>
+<div class="cards">
+<article class="card">
+<div class="card-top"><span class="card-id">B08</span><h4>Writable interface identity</h4><span class="chip emerging">Emerging</span></div>
+<p>In biological fluids, adsorption and exchange can alter the operational identity of a nanoscale surface relative to its engineered coating. Adsorption, exchange, complement activation and degradation produce an identity the environment responds to.</p>
+<p class="solved"><b>Counts as solved when</b>A designed surface state predicts corona composition, uptake and clearance reproducibly across donors and media, making acquired identity a design variable rather than an observation.</p>
+</article>
+<article class="card">
+<div class="card-top"><span class="card-id">B09</span><h4>Tooltip chemistry and site re-addressability</h4><span class="chip emerging">Emerging</span></div>
+<p>Positional chemistry needs an active tip that can be made reproducibly, used selectively, and returned to a known state. There are specialized demonstrations of atomically selective operations, but repeatable active-tip preparation and site re-addressability across general reaction families remain unsolved.</p>
+<p class="solved"><b>Counts as solved when</b>Reproducible active tooltip synthesis, reaction-selective site access and post-reaction re-addressability are reported together, with independent verification at the reaction scale.</p>
+</article>
+<article class="card">
+<div class="card-top"><span class="card-id">B10</span><h4>Parallelism and extraction</h4><span class="chip speculative">Speculative</span></div>
+<p>One tip is a laboratory instrument. Manufacturing requires many independently controlled tools holding calibration, and a path for product to leave the clean environment intact. Extraction is the step most often omitted from roadmaps.</p>
+<p class="solved"><b>Counts as solved when</b>An array sustains a stated operation rate with per-tool yield accounting and tool-state drift reported, and an extraction route preserves the built structure measurably.</p>
+</article>
+<article class="card">
+<div class="card-top"><span class="card-id">B11</span><h4>Transferable substrate rules</h4><span class="chip projected">Projected</span></div>
+<p>This is the kill assumption for the whole platform claim. Transferability is a central kill assumption for the proposed platform claim. If rules fail to predict useful performance across distinct machine classes, a general compiler may be unjustified even if some workcells remain valuable.</p>
+<p class="solved"><b>Counts as solved when</b>A rule learned on one machine class measurably improves first-pass functional yield on another, with the transfer stated as a prediction before the build.</p>
+</article>
+</div>
+</section>
+<section id="evidence">
+<div class="sec-head"><span class="sec-num">06</span><h2>Evidence discipline</h2></div>
+<div class="prose">
+<p>This dossier distinguishes existing capabilities, proposed integration hypotheses, and long-horizon speculation. Its maturity labels are judgments about capability classes, not claims that a single integrated workcell has been demonstrated. Mixing them is the characteristic failure of nanotechnology roadmaps.</p>
+</div>
+<div class="scroll-x">
+<table>
+<caption>Table 03. Maturity ladder, with current placements from the program's own literature architecture.</caption>
+<thead><tr><th scope="col">Level</th><th scope="col">Meaning</th><th scope="col">Current placements</th></tr></thead>
+<tbody>
+<tr><th scope="row"><span class="chip demonstrated">Demonstrated</span></th><td>Public evidence supports the capability class.</td><td>DNA origami, strand-displacement reconfiguration, DNA-mediated nanoparticle organization, active colloid behaviors, magnetic nanoswarm navigation, feedback control of active matter, functional silicification of DNA origami.</td></tr>
+<tr><th scope="row"><span class="chip emerging">Emerging</span></th><td>Credible funded programs, incomplete proof at target scale.</td><td>Dynamically annealing protein materials, AI-reprogrammed S-layer templates, protein-organized magnetic crystal growth, large-area metal-protein frameworks.</td></tr>
+<tr><th scope="row"><span class="chip projected">Projected</span></th><td>Plausible components, no integrated demonstration.</td><td>Unified substrate compiler, reliable broad materialization handoffs, molecularly controlled active chassis, heterogeneous multi-regime machines.</td></tr>
+<tr><th scope="row"><span class="chip speculative">Speculative</span></th><td>Depends on advances in several unresolved areas.</td><td>Scalable general mechanosynthesis, high-complexity autonomous swarms, broad universal fabrication across material classes.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="prose">
+<p>The proposed integration program is at a conceptual, literature-based and modeling stage; this dossier does not report original in-house validation of a fully integrated molecular workcell. That constrains what can be claimed and does not invalidate the architecture. The sequencing priority follows from it directly: run the experiments that eliminate entire branches of uncertainty before adding conceptual complexity.</p>
+</div>
+</section>
+<footer>
+<div>
+<h3>Evidence and intellectual context</h3>
+<ul><li><a href="https://doi.org/10.1038/s41586-022-04910-y" rel="noopener noreferrer" target="_blank">Pumm et al. (2022), DNA origami rotary ratchet motor</a></li><li><a href="https://doi.org/10.1002/adma.74245" rel="noopener noreferrer" target="_blank">Weiß et al. (2026), Magnetic DNA origami nanorotors</a></li><li><a href="https://doi.org/10.1038/s41596-022-00688-5" rel="noopener noreferrer" target="_blank">Bohlin et al. (2022), Modeling DNA, RNA and hybrid nanostructures</a></li><li><a href="https://doi.org/10.64898/2026.09.14.751464" rel="noopener noreferrer" target="_blank">Meng et al. (2026), Optically addressable spins in DNA [preprint]</a></li><li>Hybrid Programmable Bionanomachines, internal research architecture, 2026</li></ul><p class="note">Citations illustrate component capabilities, not endorsement, collaboration, or demonstration of the proposed integration.</p>
+</div>
+<p class="coda">The workcell is the proposed unit of experimental accountability: a specified operation, measured outcome, and explicit failure budget.</p>
+<p class="note"><a href="../">← Return to the field-building proposal</a></p></footer>
+</main>
+</div>
+</div>
+<script>
+/* Section rail: mark the section currently in the reading band. */
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  if (!links.length || !('IntersectionObserver' in window)) return;
+  var map = {}, secs = [];
+  links.forEach(function(a){
+    var id = a.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if (el) { map[id] = a; secs.push(el); }
+  });
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (!e.isIntersecting) return;
+      links.forEach(function(l){ l.classList.remove('is-current'); });
+      var a = map[e.target.id];
+      if (a) a.classList.add('is-current');
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+  secs.forEach(function(s){ io.observe(s); });
+})();
+
+/* Theme: follow the system until the reader chooses, then remember the choice. */
+(function(){
+  var btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  var KEY = 'mwe-theme';
+
+  function stored(){
+    try { return localStorage.getItem(KEY); } catch (e) { return null; }
+  }
+  function systemDark(){
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function isDark(){
+    var t = document.documentElement.getAttribute('data-theme');
+    if (t === 'dark') return true;
+    if (t === 'light') return false;
+    return systemDark();
+  }
+  function label(){
+    var next = isDark() ? 'Light' : 'Dark';
+    btn.textContent = next;
+    btn.setAttribute('aria-label', 'Switch to ' + next.toLowerCase() + ' theme');
+  }
+
+  var saved = stored();
+  if (saved === 'dark' || saved === 'light') {
+    document.documentElement.setAttribute('data-theme', saved);
+  }
+  label();
+
+  btn.addEventListener('click', function(){
+    var next = isDark() ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem(KEY, next); } catch (e) {}
+    label();
+  });
+
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onChange = function(){ if (!document.documentElement.hasAttribute('data-theme')) label(); };
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else if (mq.addListener) mq.addListener(onChange);
+  }
+})();
+</script>
+</body>
+</html>
 
